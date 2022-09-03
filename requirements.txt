@@ -1,3 +1,7 @@
+gdown==4.5.1
+joblib==1.1.0
 pandas==1.4.4
 plotly==5.10.0
+pytz==2022.2.1
 streamlit==1.12.2
+streamlit_plotly_mapboxEvents==0.0.4
