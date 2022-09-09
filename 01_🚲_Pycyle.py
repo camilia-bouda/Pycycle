@@ -104,7 +104,7 @@ with app:
             fig2.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
             fig2.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
             fig2.update_xaxes(ticksuffix="h")
-            fig2.update_layout( height = 350,
+            fig2.update_layout( height = 280,
                                 showlegend=False, 
                                 xaxis={'title': '','visible': True, 'showticklabels': True},
                                 yaxis={"visible": False})
@@ -114,6 +114,7 @@ with app:
 
             st.markdown("📍 " + selected_compteur_name)
             st.markdown(texte)
+            st.info("Prédiction: 🛠 en cours de developpement")
 
             st.plotly_chart(fig2, use_container_width=True, config = {'displayModeBar': False})
 
