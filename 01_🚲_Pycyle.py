@@ -7,7 +7,7 @@ import json
 import gdown
 from streamlit_plotly_mapbox_events import plotly_mapbox_events
 
-st.set_page_config(page_title = "Pycycle", layout="wide", initial_sidebar_state="collapsed")
+st.set_page_config(page_title = "Pycycle", layout="wide", initial_sidebar_state="collapsed", page_icon = ":bicyclist:")
 
 header = st.container()
 app = st.container()
