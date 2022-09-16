@@ -8,11 +8,13 @@ import json
 import gdown
 from streamlit_plotly_mapbox_events import plotly_mapbox_events
 
+
 st.set_page_config(page_title = "Pycycle", layout="wide", initial_sidebar_state="collapsed", page_icon = ":bicyclist:")
 
 header = st.container()
 app = st.container()
 dataviz = st.container()
+
 
 @st.cache()
 def load_data(url):
@@ -32,6 +34,7 @@ def gdown_csv(url, separateur=";", index_colonne=0):
 
 token = "pk.eyJ1IjoiY2FtaWxpYWIiLCJhIjoiY2w3a284am1uMDg5ejNvdDV6cWNzdTFsaSJ9.7nOYlVU0P_oLhl-7BnIu6Q"
 affluence_compteur = load_data("https://drive.google.com/file/d/1-C2wCqL-A0Z07oxqoVSjKk3QZYG8wwcF/view?usp=sharing")
+evolution_compteur = load_data("https://drive.google.com/file/d/1-6YJli-DfMveW9fHYySWNK9yYF3-DONY/view?usp=sharing")
 
 affluence_heure = load_data("https://drive.google.com/file/d/1aFA3dbK4VSK2h79UIgM9yTXzpO9gzf2h/view?usp=sharing")
 affluence_heure = affluence_heure.reset_index(drop=False)
@@ -42,6 +45,8 @@ df_jour = load_data("https://drive.google.com/file/d/1-5buJB2Ex8b_0Mufd8Nx0nosnL
 df_mois = load_data("https://drive.google.com/file/d/1-2EvLeovBozXEo5ZU9Qe-HJOXfRzWW2h/view?usp=sharing")
 df_annee = load_data("https://drive.google.com/file/d/1-1HCVIm404KvplBBkxkoOMfAmz7WYTmZ/view?usp=sharing")
 
+
+
 with header:
     st.header("Pycycle - Prédiction du trafic cycliste à Paris")
     #st.caption("Camilia Bouda, Gilles Schenfele")
@@ -50,6 +55,9 @@ with header:
     st.info("Sélectionner un jour de la semaine et un compteur sur la carte pour voir son affluence habituelle au fil de la journée   ⬇️")
     if 'selected_bike_meter' not in st.session_state:
         st.session_state.selected_bike_meter = '[]'    
+
+
+
 
 with app:
     tz = pytz.timezone('Europe/Paris')
@@ -133,10 +141,12 @@ with app:
             st.plotly_chart(fig2, use_container_width=True, config = {'displayModeBar': False})
 
 
+
+
 with dataviz:
     st.markdown("#### :rocket: Explorer les données !")
 
-    tab1, tab2, tab3, tab4 = st.tabs(["Heure", "Jour", "Mois", "Année"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["Heure", "Jour", "Mois", "Année", 'Animation'])
 
     with tab1:
 
@@ -171,6 +181,7 @@ with dataviz:
 
             st.plotly_chart(fig3, use_container_width=True)
     
+
     with tab2:
         c2, c1 = st.columns((2, 0.5))
 
@@ -202,6 +213,7 @@ with dataviz:
 
             st.plotly_chart(fig4, use_container_width=True)
     
+
     with tab3:
         fig5 = px.bar(df_mois, x = "Mois", y='Comptage horaire', barmode='group')
 
@@ -211,6 +223,7 @@ with dataviz:
         
         st.plotly_chart(fig5, use_container_width=True)
     
+
     with tab4:
         fig6 = px.bar(df_annee, x = "Année", y='Comptage horaire', barmode='group')
 
@@ -219,6 +232,28 @@ with dataviz:
         fig6.update_layout(xaxis={'title': '','visible': True, 'showticklabels': True}, yaxis={"visible": False})
 
         st.plotly_chart(fig6, use_container_width=True)
+
+    
+    with tab5:
+        fig7 = px.scatter_mapbox(evolution_compteur, 
+                                lat="Lat",
+                                lon="Long", 
+                                size="Comptage horaire", 
+                                color = "Comptage horaire",
+                                hover_name = "Nom du compteur",
+                                size_max=30,
+                                zoom=11,
+                                title="Affluence horaire habituelle",
+                                animation_frame="Heure",
+                                animation_group="Comptage horaire")
+
+        fig7.update_layout(mapbox_style="light", mapbox_accesstoken=token)
+        fig7.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+        fig7.update_layout(height = 600)
+
+        st.plotly_chart(fig7, use_container_width=True)
+
+
 
 with st.sidebar:
     st.caption("Pycycle - Prédiction du trafic cycliste à Paris \n Auteurs: Camilia Bouda, Gilles Schenfele")
