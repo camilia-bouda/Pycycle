@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import pytz
 from datetime import datetime
 import json
@@ -20,6 +21,14 @@ def load_data(url):
 
     return df
 
+@st.cache(allow_output_mutation=True)
+def gdown_csv(url, separateur=";", index_colonne=0):
+    url = 'https://drive.google.com/uc?id=' + url.split('/')[-2]
+    output = "file.csv"
+    gdown.download(url, output, quiet=False) 
+    df = pd.read_csv(output, sep=separateur, index_col=index_colonne)
+    return df
+
 
 token = "pk.eyJ1IjoiY2FtaWxpYWIiLCJhIjoiY2w3a284am1uMDg5ejNvdDV6cWNzdTFsaSJ9.7nOYlVU0P_oLhl-7BnIu6Q"
 affluence_compteur = load_data("https://drive.google.com/file/d/1-C2wCqL-A0Z07oxqoVSjKk3QZYG8wwcF/view?usp=sharing")
@@ -28,6 +37,10 @@ affluence_heure = load_data("https://drive.google.com/file/d/1aFA3dbK4VSK2h79UIg
 affluence_heure = affluence_heure.reset_index(drop=False)
 affluence_heure['Heure'] = affluence_heure['Heure'].astype(str)
 
+df_heure = load_data("https://drive.google.com/file/d/1-5fOWYfR2ly-FTLN3R8TYiXN2F8cspC4/view?usp=sharing")
+df_jour = load_data("https://drive.google.com/file/d/1-5buJB2Ex8b_0Mufd8Nx0nosnLDFYH9C/view?usp=sharing")
+df_mois = load_data("https://drive.google.com/file/d/1-2EvLeovBozXEo5ZU9Qe-HJOXfRzWW2h/view?usp=sharing")
+df_annee = load_data("https://drive.google.com/file/d/1-1HCVIm404KvplBBkxkoOMfAmz7WYTmZ/view?usp=sharing")
 
 with header:
     st.header("Pycycle - Prédiction du trafic cycliste à Paris")
@@ -51,7 +64,7 @@ with app:
     filtered_df = filtered_df.reset_index(drop=False)
 
 
-    col1, col2 = st.columns((2, 1.5), gap="small")
+    col1, col2 = st.columns((1.7, 1.5), gap="medium")
 
     with col1:
         fig = px.scatter_mapbox(filtered_df, 
@@ -68,6 +81,7 @@ with app:
         fig.update_layout(mapbox_style="light", mapbox_accesstoken=token)
         fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
         fig.update_layout(height = 400)
+        fig.update_coloraxes(showscale=False)
 
         mapbox_events = plotly_mapbox_events(
                                             fig,
@@ -121,7 +135,90 @@ with app:
 
 with dataviz:
     st.markdown("#### :rocket: Explorer les données !")
-    st.info("🛠 En cours de développement")
+
+    tab1, tab2, tab3, tab4 = st.tabs(["Heure", "Jour", "Mois", "Année"])
+
+    with tab1:
+
+        c2, c1 = st.columns((2, 0.5))
+
+        with c1:
+            st.write("Regarder l'influence de la météo !")
+            weather_checkbox = st.checkbox("Météo", value=True, key='wc1')
+            holiday_checkbox = st.checkbox("Vacances et jours fériés", value=True, key='hc1')
+
+
+        with c2:
+            df1 = df_heure[(df_heure['météo'] == "Pas de pluie") & (df_heure['Vacances et jours fériés'] == 0)]
+            df2 = df_heure[(df_heure['météo'] == "Pluie") & (df_heure['Vacances et jours fériés'] == 0)]
+            df3 = df_heure[(df_heure['météo'] == "Pas de pluie") & (df_heure['Vacances et jours fériés'] == 1)]
+
+            fig3 = go.Figure()
+            fig3.add_trace(go.Bar(x = df1["Heure"], y=df1['Comptage horaire'], name='Condition optimale'))
+
+            if weather_checkbox:
+                fig3.add_trace(go.Bar(x = df2["Heure"], y=df2['Comptage horaire'], name='Pluie'))
+            
+            if holiday_checkbox:
+                fig3.add_trace(go.Bar(x = df3["Heure"], y=df3['Comptage horaire'], name='Vacances et jours fériés'))
+            
+            fig3.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+            fig3.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+            fig3.update_xaxes(ticksuffix="h")
+            fig3.update_layout(xaxis={'title': '','visible': True, 'showticklabels': True}, yaxis={"visible": False})
+            fig3.update_layout(legend=dict(yanchor="top", y=1, xanchor="left", x=0))
+
+
+            st.plotly_chart(fig3, use_container_width=True)
+    
+    with tab2:
+        c2, c1 = st.columns((2, 0.5))
+
+        with c1:
+            st.write("Regarder l'influence de la météo !")
+            weather_checkbox = st.checkbox("Météo", value=True, key = 'wc2')
+            holiday_checkbox = st.checkbox("Vacances et jours fériés", value=True, key = 'hc2')
+
+
+        with c2:
+            df1 = df_jour[(df_jour['météo'] == "Pas de pluie") & (df_jour['Vacances et jours fériés'] == 0)]
+            df2 = df_jour[(df_jour['météo'] == "Pluie") & (df_jour['Vacances et jours fériés'] == 0)]
+            df3 = df_jour[(df_jour['météo'] == "Pas de pluie") & (df_jour['Vacances et jours fériés'] == 1)]
+
+            fig4 = go.Figure()
+            fig4.add_trace(go.Bar(x = df1["Jour Type"], y=df1['Comptage horaire'], name='Condition optimale'))
+
+            if weather_checkbox:
+                fig4.add_trace(go.Bar(x = df2["Jour Type"], y=df2['Comptage horaire'], name='Pluie'))
+            
+            if holiday_checkbox:
+                fig4.add_trace(go.Bar(x = df3["Jour Type"], y=df3['Comptage horaire'], name='Vacances et jours fériés'))
+            
+            fig4.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+            fig4.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+            fig4.update_layout(xaxis={'title': '','visible': True, 'showticklabels': True}, yaxis={"visible": False})
+            fig4.update_layout(legend=dict(yanchor="top", y=1.1, xanchor="left", x=0))
+
+
+            st.plotly_chart(fig4, use_container_width=True)
+    
+    with tab3:
+        fig5 = px.bar(df_mois, x = "Mois", y='Comptage horaire', barmode='group')
+
+        fig5.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+        fig5.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+        fig5.update_layout(xaxis={'title': '','visible': True, 'showticklabels': True}, yaxis={"visible": False})
+        
+        st.plotly_chart(fig5, use_container_width=True)
+    
+    with tab4:
+        fig6 = px.bar(df_annee, x = "Année", y='Comptage horaire', barmode='group')
+
+        fig6.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+        fig6.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+        fig6.update_layout(xaxis={'title': '','visible': True, 'showticklabels': True}, yaxis={"visible": False})
+
+        st.plotly_chart(fig6, use_container_width=True)
 
 with st.sidebar:
     st.caption("Pycycle - Prédiction du trafic cycliste à Paris \n Auteurs: Camilia Bouda, Gilles Schenfele")
