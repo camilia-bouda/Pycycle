@@ -43,7 +43,7 @@ with app:
     hour = datetime.now(tz).hour
     day_index = int(datetime.now(tz).strftime("%u")) - 1
         
-    st.radio(label= 'Jour de la semaine', options=('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'),
+    st.radio(label= 'Jour de la semaine', options=('Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'),
             index=day_index, key='day', horizontal = True)
     
     filtered_df = affluence_compteur[affluence_compteur['Jour Type'] == st.session_state.day]
@@ -62,7 +62,7 @@ with app:
                                 hover_name = "Nom du compteur",
                                 hover_data = ['Jour Type'],
                                 size_max=30,
-                                zoom=10.5,
+                                zoom=11,
                                 title="Affluence horaire habituelle")
 
         fig.update_layout(mapbox_style="light", mapbox_accesstoken=token)
@@ -110,7 +110,7 @@ with app:
                                 yaxis={"visible": False})
 
             affluence = str(filtered_df2.loc[affluence_heure['Heure'] == str(hour)]['Affluence']).split('\n')[0].split('  ')[-1]
-            texte = "🕑 " + str(hour) + 'h: Habituellement **' + affluence.lower() + "**"
+            texte = "🕑 " + st.session_state.day+ " - " + str(hour) + 'h: Habituellement **' + affluence.lower() + "**"
 
             st.markdown("📍 " + selected_compteur_name)
             st.markdown(texte)
