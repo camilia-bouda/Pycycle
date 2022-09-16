@@ -31,7 +31,7 @@ affluence_heure['Heure'] = affluence_heure['Heure'].astype(str)
 
 with header:
     st.header("Pycycle - Prédiction du trafic cycliste à Paris")
-    st.caption("Camilia Bouda, Gilles Schenfele")
+    #st.caption("Camilia Bouda, Gilles Schenfele")
     st.markdown("#### :bicyclist:  Découvrez l'état du trafic cycliste aujourd'hui !")
     st.write('')
     st.info("Sélectionner un jour de la semaine et un compteur sur la carte pour voir son affluence habituelle au fil de la journée   ⬇️")
@@ -121,6 +121,7 @@ with app:
 
 with dataviz:
     st.markdown("#### :rocket: Explorer les données !")
+    st.info("🛠 En cours de développement")
 
 with st.sidebar:
     st.caption("Pycycle - Prédiction du trafic cycliste à Paris \n Auteurs: Camilia Bouda, Gilles Schenfele")
