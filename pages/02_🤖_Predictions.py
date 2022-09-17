@@ -3,12 +3,16 @@ import pandas as pd
 from joblib import load
 import gdown
 import plotly.express as px
+from streamlit_plotly_mapbox_events import plotly_mapbox_events
+import json
 
 
 
-st.set_page_config(page_title = "Pycycle")
+st.set_page_config(page_title = "Pycycle", layout="wide", initial_sidebar_state="collapsed", page_icon = ":bicyclist:")
 
 header = st.container()
+carte = st.container()
+graphe_carte = st.container()
 
 with header:
     st.title("Modèles prédictifs")
@@ -73,7 +77,8 @@ with header:
         fig = px.bar(x = x_data,
                      y = real_data,
                      opacity=0.7,
-                     color_discrete_sequence=['grey'])
+                     color_discrete_sequence=['grey'],
+                     labels={'x': 'Temps', 'y':'Volume'})
         fig2 = px.scatter(x = x_data,
                          y = pred_data)
         fig.add_trace(fig2.data[0])
@@ -99,14 +104,6 @@ with header:
         st.write("Régressions établies sur les données horaires agrégées disponibles depuis 2019")
         st.write("4 modèles ont été entraînés et les scores (r2 et MAE) obtenus après plusieurs itérations sont les suivants :")
                 
-        
-        ### data du modele horaire agrégé à la ville (dataset entrainement et dataset de test)
-        df_Hour_count = gdown_csv("https://drive.google.com/file/d/1tSDX-jjYRku5hNWNkXTKM6hyC25KcuW1/view?usp=sharing")
-        
-        ### split des datas
-        train_set_Hour_count, test_set_Hour_count, X_train_Hour_count, y_train_Hour_count, X_test_Hour_count, y_test_Hour_count = traintestsplit_df_Hour_count(df_Hour_count)
-    
-
         ### dataframe avec les résultats
         df_score_model_global = gdown_csv("https://drive.google.com/file/d/1-AeeyzgZ70KBuS_RVceOajL7wTIabhlf/view?usp=sharing")
         df_score_model_global[["Score_train","Score_test"]] = round(df_score_model_global[["Score_train","Score_test"]],4)
@@ -116,51 +113,31 @@ with header:
         
         
         st.table(df_score_model_global)
+    
         
         st.markdown("#### Modèle Random Forest")
         
+        RF_pred_train = gdown_csv("https://drive.google.com/file/d/1W3sqegoj5jCmGAly-T_VNxr5qn57h5mp/view?usp=sharing")
+        RF_pred_test = gdown_csv("https://drive.google.com/file/d/1fScrX7drOsCjajpEyEuhRZgpc6vWv-vv/view?usp=sharing")
         
-        if st.button('Charger le modele'): 
-        
-            model_global_RF = gdown_joblib("https://drive.google.com/file/d/1pt4Dg9MokgAUrhlaR8codl-3WScaSjDv/view?usp=sharing")
-            RF_pred_train, RF_pred_test = calcul_predictions(model_global_RF, X_train_Hour_count, X_test_Hour_count)
+
+        fig_RF_train = plot_prediction(RF_pred_train['Date'],
+                                          RF_pred_train['prediction'], RF_pred_train['Comptage horaire'],
+                                          "Fitting sur le dataset d'entraînement")
+        st.write(fig_RF_train)
+
+        fig_RF_test = plot_prediction(RF_pred_test['Date'],
+                                          RF_pred_test['prediction'], RF_pred_test['Comptage horaire'],
+                                          "Prévisions sur le dataset de test")
+        st.write(fig_RF_test)            
             
-            st.write("score sur le dataset d'entraînement : " +  str(round(model_global_RF.score(X_train_Hour_count,y_train_Hour_count),4)))
-            st.write("score sur le dataset de test : " + str(round(model_global_RF.score(X_test_Hour_count,y_test_Hour_count),4)))
-        
-            
-            
-            fig_RF_train = plot_prediction(train_set_Hour_count['Date'],
-                                              RF_pred_train, y_train_Hour_count,
-                                              "Fitting sur le dataset d'entraînement")
-            st.write(fig_RF_train)
-    
-            fig_RF_test = plot_prediction(test_set_Hour_count['Date'],
-                                              RF_pred_test, y_test_Hour_count,
-                                              "Prévisions sur le dataset de test")
-            st.write(fig_RF_test)            
-            
-        else:
-            st.write("Charger le modèle Random Forest (env. 600Mo, temps de chargement d'une minute)")
-             
-    
     
     with tab_global2:
         st.markdown("#### Prévision du niveau de trafic par capteur, par tranche horaire")
         st.write("Régressions établies par capteur et tranche de 4 heures depuis 2019")
         st.write("4 modèles ont été entraînés et les scores (r2 et MAE) obtenus après plusieurs itérations sont les suivants :")
         
-
-        ### data du modele par capteur et tranches horaires (dataset entrainement et dataset de test)
-        df_capteur_tr_horaire = gdown_csv("https://drive.google.com/file/d/1-2u6zMBGQBqGp1nRHpy7IQu1OO9C6YRq/view?usp=sharing")
         
-        
-        ### split des datas
-        train_set_capteur_tr_horaire, test_set_capteur_tr_horaire, X_train_capteur_tr_horaire, y_train_capteur_tr_horaire, X_test_capteur_tr_horaire, y_test_capteur_tr_horaire = traintestsplit_df_capteur_tr_horaire(df_capteur_tr_horaire)
-        
-        train_set_capteur_tr_horaire["Date - Tranche Horaire"] = train_set_capteur_tr_horaire["Date"].astype(str) + " - " + (train_set_capteur_tr_horaire['Tranche horaire_1']*1 + train_set_capteur_tr_horaire['Tranche horaire_2']*2 + train_set_capteur_tr_horaire['Tranche horaire_3']*3 + train_set_capteur_tr_horaire['Tranche horaire_4']*4 + train_set_capteur_tr_horaire['Tranche horaire_5']*5).astype(str)
-        test_set_capteur_tr_horaire["Date - Tranche Horaire"] = test_set_capteur_tr_horaire["Date"].astype(str) + " - " + (test_set_capteur_tr_horaire['Tranche horaire_1']*1 + test_set_capteur_tr_horaire['Tranche horaire_2']*2 + test_set_capteur_tr_horaire['Tranche horaire_3']*3 + test_set_capteur_tr_horaire['Tranche horaire_4']*4 + test_set_capteur_tr_horaire['Tranche horaire_5']*5).astype(str)
-
         ### dataframe avec les résultats
         df_score_model_capteur = gdown_csv("https://drive.google.com/file/d/1-EiGcmrlx4EigIt71JzvR-uiEaJnszlu/view?usp=sharing")
         df_score_model_capteur[["Score_train","Score_test"]] = round(df_score_model_capteur[["Score_train","Score_test"]],4)
@@ -174,62 +151,76 @@ with header:
         st.markdown("#### Modèle Random Forest")
         
         
-        if st.button('Charger le modèle'):        
-            model_capteur_RF = gdown_joblib("https://drive.google.com/file/d/1-AQqkeCysg5BN2ZQoqz5J1i5Y1xA0uKZ/view?usp=sharing")
-            RF_pred_train, RF_pred_test = calcul_predictions(model_capteur_RF, X_train_capteur_tr_horaire, X_test_capteur_tr_horaire)
-            
-            st.write("score sur le dataset d'entraînement : " +  str(round(model_capteur_RF.score(X_train_capteur_tr_horaire,y_train_capteur_tr_horaire),4)))
-            st.write("score sur le dataset de test : " + str(round(model_capteur_RF.score(X_test_capteur_tr_horaire,y_test_capteur_tr_horaire),4)))
+        RF_pred_train = gdown_csv("https://drive.google.com/file/d/1SR0Efyz0slwaXpT77zb52GUY0fwLTV-n/view?usp=sharing")
+        RF_pred_test = gdown_csv("https://drive.google.com/file/d/1--xQjipzWgI5J98zGjzu9G_LL71RERlk/view?usp=sharing")
+  
 
-        else:
-            st.write("Charger le modèle Random Forest (env. 4Go, temps de chargement de quelques minutes)")
- 
 
-        st.write("Tranche 0 : 21h - 1h, Tranche 1 : 1h - 4h, Tranche 2 : 5h - 8h, Tranche 3 : 9h - 12h, Tranche 4 : 13h - 16h, Tranche 5 : 17h - 20h")
     
         df_capteurs_index = gdown_csv("https://drive.google.com/file/d/1wJvqoWAaCG4x-UDNPppiva47vnsQnV0F/view?usp=sharing")
-        
         id_compteur = 0
+        df_capteurs_index =  df_capteurs_index[df_capteurs_index['id compteur'].isin(RF_pred_test["id compteur"].unique())]
+        df_capteurs_index =  df_capteurs_index[df_capteurs_index['id compteur'].isin(RF_pred_train["id compteur"].unique())]
+        token = "pk.eyJ1IjoiY2FtaWxpYWIiLCJhIjoiY2w3a284am1uMDg5ejNvdDV6cWNzdTFsaSJ9.7nOYlVU0P_oLhl-7BnIu6Q"
         
-        df_capteurs_index = df_capteurs_index[df_capteurs_index['id compteur'].isin(test_set_capteur_tr_horaire["id compteur"].unique())]
-        
-        select_capteur = st.selectbox('Choix du capteur (temps de calcul d\'une à deux minutes)', df_capteurs_index['Capteur'])
-        
-        id_compteur = df_capteurs_index.loc[df_capteurs_index['Capteur']==select_capteur, "id compteur"].values[0]
-        
-        df_fig_train = train_set_capteur_tr_horaire
-        df_fig_train["Prevision"] = pd.Series(RF_pred_train)
-        df_fig_train["Reel"] = y_train_capteur_tr_horaire
-        df_fig_train = df_fig_train[df_fig_train["id compteur"] == id_compteur]
-        df_fig_train["Tranche Horaire"] = (df_fig_train['Tranche horaire_1']*1 + df_fig_train['Tranche horaire_2']*2 + df_fig_train['Tranche horaire_3']*3 + df_fig_train['Tranche horaire_4']*4 + df_fig_train['Tranche horaire_5']*5)
-        df_fig_train = df_fig_train.sort_values(by = ['Date',"Tranche Horaire"], ascending = True)
-        ### drop duplicates car il y a un soucis dans le dataset avec les tranches historiques ?
-        # df_fig_train = df_fig_train.drop_duplicates(subset=["Date","Tranche Horaire"])
-        
-        fig_RF_train = plot_prediction(df_fig_train['Date - Tranche Horaire'],
-                                          df_fig_train['Prevision'], df_fig_train['Reel'],
-                                          "Fitting sur le dataset d'entraînement")
-        st.write(fig_RF_train)
 
-        df_fig_test = test_set_capteur_tr_horaire
-        df_fig_test["Prevision"] = pd.Series(RF_pred_test)
-        df_fig_test["Reel"] = y_test_capteur_tr_horaire
-        df_fig_test = df_fig_test[df_fig_test["id compteur"] == id_compteur]
-        df_fig_test["Tranche Horaire"] = (df_fig_test['Tranche horaire_1']*1 + df_fig_test['Tranche horaire_2']*2 + df_fig_test['Tranche horaire_3']*3 + df_fig_test['Tranche horaire_4']*4 + df_fig_test['Tranche horaire_5']*5)
-        df_fig_test = df_fig_test.sort_values(by = ['Date',"Tranche Horaire"], ascending = True)
-        ### drop duplicates car il y a un soucis dans le dataset avec les tranches historiques ?
-        # df_fig_test = df_fig_test.drop_duplicates(subset=["Date","Tranche Horaire"])
+
+        st.write("Choix du compteur")
         
-        if len(df_fig_test) == 0:
-            st.write("Ce capteur est absent du dataset de test")
+        fig = px.scatter_mapbox(df_capteurs_index, 
+                                lat="Lat",
+                                lon="Long", 
+                                #size="Comptage horaire moyen", 
+                                #color = "Comptage horaire moyen",
+                                hover_name = "Nom du compteur",
+                                #hover_data = ['Jour Type'],
+                                size_max=30,
+                                zoom=11,
+                                title="Affluence horaire habituelle")
+
+        fig.update_layout(mapbox_style="light", mapbox_accesstoken=token)
+        fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+        fig.update_layout(height = 400)
+        fig.update_coloraxes(showscale=False)
+
+        mapbox_events = plotly_mapbox_events(
+                                            fig,
+                                            click_event=True,
+                                            select_event=False,
+                                            hover_event=False,
+                                            relayout_event=False,
+                                            override_width = "100%",
+                                            key = 'selected_bike_meter')
+
+    
+        if st.session_state.selected_bike_meter != "[]":  #If a bike meter has been selected, we show the graph of the hourly trafic
+            id_compteur = json.loads(st.session_state.selected_bike_meter)[0][0]['pointIndex']
             
-        else:
+            df_tranche_horaire = pd.DataFrame({"Tranche horaire":["Tranche 0","Tranche 1","Tranche 2","Tranche 3","Tranche 4","Tranche 5"],"Heures":["21h - 1h","5h - 8h","5h - 8h","9h - 12h","13h - 16h","17h - 20h"]}).set_index("Tranche horaire")
+            st.table(df_tranche_horaire.T)
+            
+            df_fig_train = RF_pred_train[RF_pred_train["id compteur"] == id_compteur]
+            df_fig_train["Tranche Horaire"] = (df_fig_train['Tranche horaire_1']*1 + df_fig_train['Tranche horaire_2']*2 + df_fig_train['Tranche horaire_3']*3 + df_fig_train['Tranche horaire_4']*4 + df_fig_train['Tranche horaire_5']*5)
+            df_fig_train["Date - Tranche Horaire"] = df_fig_train["Date"].astype(str) + " - " + df_fig_train["Tranche Horaire"].astype(str)
+            df_fig_train = df_fig_train.sort_values(by = ['Date',"Tranche Horaire"], ascending = True)
         
-            fig_lasso_test = plot_prediction(df_fig_test['Date - Tranche Horaire'],
-                                              df_fig_test['Prevision'], df_fig_test['Reel'],
+            
+            fig_RF_train = plot_prediction(df_fig_train['Date - Tranche Horaire'],
+                                              df_fig_train['prediction'], df_fig_train['Comptage Tranche Horaire'],
                                               "Fitting sur le dataset d'entraînement")
-            st.write(fig_lasso_test)   
-                
+            st.write(fig_RF_train)
+        
+            df_fig_test = RF_pred_test[RF_pred_test["id compteur"] == id_compteur]
+            df_fig_test["Tranche Horaire"] = (df_fig_test['Tranche horaire_1']*1 + df_fig_test['Tranche horaire_2']*2 + df_fig_test['Tranche horaire_3']*3 + df_fig_test['Tranche horaire_4']*4 + df_fig_test['Tranche horaire_5']*5)
+            df_fig_test["Date - Tranche Horaire"] = df_fig_test["Date"].astype(str) + " - " + df_fig_test["Tranche Horaire"].astype(str)
+            df_fig_test = df_fig_test.sort_values(by = ['Date',"Tranche Horaire"], ascending = True)
+            
+         
+            fig_RF_test = plot_prediction(df_fig_test['Date - Tranche Horaire'],
+                                              df_fig_test['prediction'], df_fig_test['Comptage Tranche Horaire'],
+                                              "Prévisions sur le dataset de test")
+            st.write(fig_RF_test)
+            
         
 
     
