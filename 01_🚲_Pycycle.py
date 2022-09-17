@@ -52,7 +52,7 @@ with header:
     #st.caption("Camilia Bouda, Gilles Schenfele")
     st.markdown("#### :bicyclist:  Découvrez l'état du trafic cycliste aujourd'hui !")
     st.write('')
-    st.info("Sélectionner un jour de la semaine et un compteur sur la carte pour voir son affluence habituelle au fil de la journée   ⬇️")
+    st.info("Sélectionner un jour de la semaine et un compteur sur la carte pour voir son affluence habituelle au fil de la journée", icon="⬇️")
     if 'selected_bike_meter' not in st.session_state:
         st.session_state.selected_bike_meter = '[]'    
 
@@ -146,16 +146,21 @@ with app:
 with dataviz:
     st.markdown("#### :rocket: Explorer les données !")
 
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["Heure", "Jour", "Mois", "Année", 'Animation'])
+    st.write("Nous vous proposons d'explorer les données du trafic cycliste parisien habituel en fonction du niveau d'agrégation (par heure, type de jour, mois et année)\
+        et de paramètres extérieurs tel que l'effet de la pluie.\
+            Vous pouvez également voir l'évolution du trafic moyen à l'échelle d'une journée dans le dernier onglet ci-dessous.\
+                \nBonne exploration !🧑‍🚀")
+
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["Heure", "Jour", "Mois", "Année", "Animation - Evolution du trafic au cours d'une journée"])
 
     with tab1:
 
         c2, c1 = st.columns((2, 0.5))
 
         with c1:
-            st.write("Regarder l'influence de la météo !")
-            weather_checkbox = st.checkbox("Météo", value=True, key='wc1')
-            holiday_checkbox = st.checkbox("Vacances et jours fériés", value=True, key='hc1')
+            st.info("Sélectionner les paramètres pour voir leur influence sur le trafic cycliste:", icon="⬇️")
+            weather_checkbox = st.checkbox("☔️ Pluie", value=True, key='wc1')
+            holiday_checkbox = st.checkbox("🌴 Vacances et jours fériés", value=True, key='hc1')
 
 
         with c2:
@@ -164,7 +169,7 @@ with dataviz:
             df3 = df_heure[(df_heure['météo'] == "Pas de pluie") & (df_heure['Vacances et jours fériés'] == 1)]
 
             fig3 = go.Figure()
-            fig3.add_trace(go.Bar(x = df1["Heure"], y=df1['Comptage horaire'], name='Condition optimale'))
+            fig3.add_trace(go.Bar(x = df1["Heure"], y=df1['Comptage horaire'], name='Pas de pluie et hors vacances/jours fériés'))
 
             if weather_checkbox:
                 fig3.add_trace(go.Bar(x = df2["Heure"], y=df2['Comptage horaire'], name='Pluie'))
@@ -174,7 +179,7 @@ with dataviz:
             
             fig3.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
             fig3.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
-            fig3.update_xaxes(ticksuffix="h")
+            fig3.update_layout(xaxis = dict(tickmode = 'array', tickvals = [i for i in range(24)],ticktext = [str(i) + "h" for i in range(24)]))
             fig3.update_layout(xaxis={'title': '','visible': True, 'showticklabels': True}, yaxis={"visible": False})
             fig3.update_layout(legend=dict(yanchor="top", y=1, xanchor="left", x=0))
 
@@ -186,9 +191,9 @@ with dataviz:
         c2, c1 = st.columns((2, 0.5))
 
         with c1:
-            st.write("Regarder l'influence de la météo !")
-            weather_checkbox = st.checkbox("Météo", value=True, key = 'wc2')
-            holiday_checkbox = st.checkbox("Vacances et jours fériés", value=True, key = 'hc2')
+            st.info("Sélectionner les paramètres pour voir leur influence sur le trafic cycliste:", icon="⬇️")
+            weather_checkbox = st.checkbox("☔️ Pluie", value=True, key = 'wc2')
+            holiday_checkbox = st.checkbox("🌴 Vacances et jours fériés", value=True, key = 'hc2')
 
 
         with c2:
@@ -197,7 +202,7 @@ with dataviz:
             df3 = df_jour[(df_jour['météo'] == "Pas de pluie") & (df_jour['Vacances et jours fériés'] == 1)]
 
             fig4 = go.Figure()
-            fig4.add_trace(go.Bar(x = df1["Jour Type"], y=df1['Comptage horaire'], name='Condition optimale'))
+            fig4.add_trace(go.Bar(x = df1["Jour Type"], y=df1['Comptage horaire'], name='Pas de pluie et hors vacances/jours fériés'))
 
             if weather_checkbox:
                 fig4.add_trace(go.Bar(x = df2["Jour Type"], y=df2['Comptage horaire'], name='Pluie'))
@@ -230,6 +235,7 @@ with dataviz:
         fig6.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
         fig6.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
         fig6.update_layout(xaxis={'title': '','visible': True, 'showticklabels': True}, yaxis={"visible": False})
+        fig6.update_layout(xaxis = dict(tickmode = 'array', tickvals = [2019, 2020, 2021, 2022],ticktext = ['2019', '2020', '2021', '2022']))
 
         st.plotly_chart(fig6, use_container_width=True)
 
@@ -238,14 +244,14 @@ with dataviz:
         fig7 = px.scatter_mapbox(evolution_compteur, 
                                 lat="Lat",
                                 lon="Long", 
-                                size="Comptage horaire", 
-                                color = "Comptage horaire",
+                                size="Comptage horaire moyen", 
+                                color = "Comptage horaire moyen",
                                 hover_name = "Nom du compteur",
-                                size_max=30,
+                                size_max=40,
                                 zoom=11,
                                 title="Affluence horaire habituelle",
                                 animation_frame="Heure",
-                                animation_group="Comptage horaire")
+                                animation_group="Comptage horaire moyen")
 
         fig7.update_layout(mapbox_style="light", mapbox_accesstoken=token)
         fig7.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
