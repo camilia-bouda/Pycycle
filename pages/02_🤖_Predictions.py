@@ -161,6 +161,8 @@ with header:
         id_compteur = 0
         df_capteurs_index =  df_capteurs_index[df_capteurs_index['id compteur'].isin(RF_pred_test["id compteur"].unique())]
         df_capteurs_index =  df_capteurs_index[df_capteurs_index['id compteur'].isin(RF_pred_train["id compteur"].unique())]
+        df_capteurs_index["size"] = 5
+
         token = "pk.eyJ1IjoiY2FtaWxpYWIiLCJhIjoiY2w3a284am1uMDg5ejNvdDV6cWNzdTFsaSJ9.7nOYlVU0P_oLhl-7BnIu6Q"
         
 
@@ -170,13 +172,10 @@ with header:
         fig = px.scatter_mapbox(df_capteurs_index, 
                                 lat="Lat",
                                 lon="Long", 
-                                #size="Comptage horaire moyen", 
-                                #color = "Comptage horaire moyen",
+                                size="size", 
                                 hover_name = "Nom du compteur",
-                                #hover_data = ['Jour Type'],
-                                size_max=30,
-                                zoom=11,
-                                title="Affluence horaire habituelle")
+                                size_max=10,
+                                zoom=11)
 
         fig.update_layout(mapbox_style="light", mapbox_accesstoken=token)
         fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
