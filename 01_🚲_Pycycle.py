@@ -159,8 +159,8 @@ with dataviz:
 
         with c1:
             st.info("Sélectionner les paramètres pour voir leur influence sur le trafic cycliste:", icon="⬇️")
-            weather_checkbox = st.checkbox("☔️ Pluie", value=True, key='wc1')
-            holiday_checkbox = st.checkbox("🌴 Vacances et jours fériés", value=True, key='hc1')
+            weather_checkbox = st.checkbox("☔️ Pluie", value=False, key='wc1')
+            holiday_checkbox = st.checkbox("🌴 Vacances et jours fériés", value=False, key='hc1')
 
 
         with c2:
@@ -184,6 +184,7 @@ with dataviz:
             fig3.update_layout(legend=dict(yanchor="top", y=1, xanchor="left", x=0))
 
 
+            st.markdown("**Comptage horaire moyen par heure**")
             st.plotly_chart(fig3, use_container_width=True)
     
 
@@ -192,8 +193,8 @@ with dataviz:
 
         with c1:
             st.info("Sélectionner les paramètres pour voir leur influence sur le trafic cycliste:", icon="⬇️")
-            weather_checkbox = st.checkbox("☔️ Pluie", value=True, key = 'wc2')
-            holiday_checkbox = st.checkbox("🌴 Vacances et jours fériés", value=True, key = 'hc2')
+            weather_checkbox = st.checkbox("☔️ Pluie", value=False, key = 'wc2')
+            holiday_checkbox = st.checkbox("🌴 Vacances et jours fériés", value=False, key = 'hc2')
 
 
         with c2:
@@ -216,6 +217,7 @@ with dataviz:
             fig4.update_layout(legend=dict(yanchor="top", y=1.1, xanchor="left", x=0))
 
 
+            st.markdown("**Comptage horaire moyen par type de jour**")
             st.plotly_chart(fig4, use_container_width=True)
     
 
@@ -226,6 +228,7 @@ with dataviz:
         fig5.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
         fig5.update_layout(xaxis={'title': '','visible': True, 'showticklabels': True}, yaxis={"visible": False})
         
+        st.markdown("**Comptage horaire moyen par mois**")
         st.plotly_chart(fig5, use_container_width=True)
     
 
@@ -237,6 +240,7 @@ with dataviz:
         fig6.update_layout(xaxis={'title': '','visible': True, 'showticklabels': True}, yaxis={"visible": False})
         fig6.update_layout(xaxis = dict(tickmode = 'array', tickvals = [2019, 2020, 2021, 2022],ticktext = ['2019', '2020', '2021', '2022']))
 
+        st.markdown("**Comptage horaire moyen par année**")
         st.plotly_chart(fig6, use_container_width=True)
 
     
@@ -257,6 +261,7 @@ with dataviz:
         fig7.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
         fig7.update_layout(height = 600)
 
+        st.markdown("**Evolution du comptage horaire moyen par compteur au fil d'une journée**")
         st.plotly_chart(fig7, use_container_width=True)
 
 
