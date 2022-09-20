@@ -113,6 +113,7 @@ with header:
             ")
     
     st.markdown('### Traitement des données')
+    st.write("A compléter")
     
     st.markdown('### Les modèles testés')
     
@@ -134,3 +135,4 @@ with header:
     
 
     st.markdown('### Perspectives')
+    st.write("A compléter")
