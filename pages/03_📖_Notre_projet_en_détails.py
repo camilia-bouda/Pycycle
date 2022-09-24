@@ -39,7 +39,7 @@ with header:
                 (trafic général dans Paris), soit pour chacun des compteurs\
                 (localisé géographiquement) sur une période de temps définie.")
     with c2:
-        plan_velos = Image.open("pages/Plan Vélo 2021 2026.jpeg")
+        plan_velos = Image.open("pages/Plan_Vélo_2021_2026.jpeg")
         st.image(plan_velos, use_column_width=True, caption = "Le Plan Vélo 2021-2026 de la Mairie de Paris")
     
     st.markdown('### Jeu de données initial')
