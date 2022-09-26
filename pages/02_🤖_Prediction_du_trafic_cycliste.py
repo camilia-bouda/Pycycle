@@ -17,6 +17,15 @@ graphe_carte = st.container()
 with header:
     st.title("Modèles prédictifs")
 
+    st.write("Les modèles établis dans le cadre du projet permettent de prédire\
+             le trafic cycliste à Paris\
+            à partir de données issues de compteurs à vélos situés un peu\
+            partout dans la ville.\n\
+            Plus précisément, on cherche à prédire le nombre de vélos circulant\
+            comptabilisé soit pour une agrégation de tous les compteurs\
+            (trafic général dans Paris), soit pour chacun des compteurs\
+            (localisé géographiquement) sur une période de temps définie.")
+
     tab_global1, tab_global2 = st.tabs(["Prévision du trafic global horaire", "Prévision du trafic par capteur"])
     
     @st.cache(allow_output_mutation=True)
@@ -110,16 +119,24 @@ with header:
         df_score_model_global[["MAE_train","MAE_test"]] = round(df_score_model_global[["MAE_train","MAE_test"]])
         df_score_model_global = df_score_model_global.astype({"MAE_train" : int,
                                                               "MAE_test" : int})
-        
+        df_score_model_global = df_score_model_global.drop([4,5]).reset_index().drop(["index"], axis=1)
         
         st.table(df_score_model_global)
     
-        
+        st.write("Avec un entraînement sur un dataset d'une profondeur de près de 3 ans,\
+                le modèle Random Forest présente les meilleurs résultats\
+                ($r^2$ et erreur absolue moyenne),\
+                cependant, on observe un peu d'overfitting sur le dataset de test.\
+                \nLes graphiques suivants permettent d'explorer les résultats de\
+                fitting et de test de ce modèle.")  
+                
         st.markdown("#### Modèle Random Forest")
         
         RF_pred_train = gdown_csv("https://drive.google.com/file/d/1W3sqegoj5jCmGAly-T_VNxr5qn57h5mp/view?usp=sharing")
         RF_pred_test = gdown_csv("https://drive.google.com/file/d/1fScrX7drOsCjajpEyEuhRZgpc6vWv-vv/view?usp=sharing")
         
+        RF_pred_train = RF_pred_train.drop_duplicates("Date")
+        RF_pred_test = RF_pred_test.drop_duplicates("Date")
 
         fig_RF_train = plot_prediction(RF_pred_train['Date'],
                                           RF_pred_train['prediction'], RF_pred_train['Comptage horaire'],
@@ -146,16 +163,22 @@ with header:
                                                               "MAE_test" : int})
                 
         st.table(df_score_model_capteur)
+
+
+        st.write("Comme pour le modèle agrégé de tous les capteurs,\
+                le modèle Random Forest présente les meilleurs résultats\
+                ($r^2$ et erreur absolue moyenne),\
+                avec un peu d'overfitting sur le dataset de test.\
+                \nLes graphiques suivants permettent d'explorer les résultats de\
+                fitting et de test de ce modèle par capteur et par tranche de 4 heures.")      
+ 
     
-   
         st.markdown("#### Modèle Random Forest")
         
         
         RF_pred_train = gdown_csv("https://drive.google.com/file/d/1SR0Efyz0slwaXpT77zb52GUY0fwLTV-n/view?usp=sharing")
         RF_pred_test = gdown_csv("https://drive.google.com/file/d/1--xQjipzWgI5J98zGjzu9G_LL71RERlk/view?usp=sharing")
   
-
-
     
         df_capteurs_index = gdown_csv("https://drive.google.com/file/d/1wJvqoWAaCG4x-UDNPppiva47vnsQnV0F/view?usp=sharing")
         id_compteur = 0
@@ -202,7 +225,7 @@ with header:
             df_fig_train["Tranche Horaire"] = (df_fig_train['Tranche horaire_1']*1 + df_fig_train['Tranche horaire_2']*2 + df_fig_train['Tranche horaire_3']*3 + df_fig_train['Tranche horaire_4']*4 + df_fig_train['Tranche horaire_5']*5)
             df_fig_train["Date - Tranche Horaire"] = df_fig_train["Date"].astype(str) + " - " + df_fig_train["Tranche Horaire"].astype(str)
             df_fig_train = df_fig_train.sort_values(by = ['Date',"Tranche Horaire"], ascending = True)
-        
+            df_fig_train = df_fig_train.drop_duplicates("Date - Tranche Horaire")
             
             fig_RF_train = plot_prediction(df_fig_train['Date - Tranche Horaire'],
                                               df_fig_train['prediction'], df_fig_train['Comptage Tranche Horaire'],
@@ -213,7 +236,7 @@ with header:
             df_fig_test["Tranche Horaire"] = (df_fig_test['Tranche horaire_1']*1 + df_fig_test['Tranche horaire_2']*2 + df_fig_test['Tranche horaire_3']*3 + df_fig_test['Tranche horaire_4']*4 + df_fig_test['Tranche horaire_5']*5)
             df_fig_test["Date - Tranche Horaire"] = df_fig_test["Date"].astype(str) + " - " + df_fig_test["Tranche Horaire"].astype(str)
             df_fig_test = df_fig_test.sort_values(by = ['Date',"Tranche Horaire"], ascending = True)
-            
+            df_fig_test = df_fig_test.drop_duplicates("Date - Tranche Horaire")
          
             fig_RF_test = plot_prediction(df_fig_test['Date - Tranche Horaire'],
                                               df_fig_test['prediction'], df_fig_test['Comptage Tranche Horaire'],
