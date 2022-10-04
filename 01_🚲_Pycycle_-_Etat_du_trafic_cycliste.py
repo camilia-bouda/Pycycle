@@ -179,7 +179,7 @@ with dataviz:
             fig3.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
             fig3.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
             fig3.update_layout(xaxis = dict(tickmode = 'array', tickvals = [i for i in range(24)],ticktext = [str(i) + "h" for i in range(24)]))
-            fig3.update_layout(xaxis={'title': '','visible': True, 'showticklabels': True}, yaxis={"visible": False})
+            fig3.update_layout(xaxis={'title': '','visible': True, 'showticklabels': True}, yaxis={"visible": True})
             fig3.update_layout(legend=dict(yanchor="top", y=1, xanchor="left", x=0))
 
 
@@ -213,7 +213,7 @@ with dataviz:
             
             fig4.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
             fig4.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
-            fig4.update_layout(xaxis={'title': '','visible': True, 'showticklabels': True}, yaxis={"visible": False})
+            fig4.update_layout(xaxis={'title': '','visible': True, 'showticklabels': True}, yaxis={"visible": True})
             fig4.update_layout(legend=dict(yanchor="top", y=1.1, xanchor="left", x=0))
 
 
@@ -226,7 +226,7 @@ with dataviz:
 
         fig5.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
         fig5.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
-        fig5.update_layout(xaxis={'title': '','visible': True, 'showticklabels': True}, yaxis={"visible": False})
+        fig5.update_layout(xaxis={'title': '','visible': True, 'showticklabels': True}, yaxis={"visible": True, 'title': ''})
         
         st.markdown("**Comptage horaire moyen par mois**")
         st.plotly_chart(fig5, use_container_width=True)
@@ -237,7 +237,7 @@ with dataviz:
 
         fig6.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
         fig6.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
-        fig6.update_layout(xaxis={'title': '','visible': True, 'showticklabels': True}, yaxis={"visible": False})
+        fig6.update_layout(xaxis={'title': '','visible': True, 'showticklabels': True}, yaxis={"visible": True, 'title': ''})
         fig6.update_layout(xaxis = dict(tickmode = 'array', tickvals = [2019, 2020, 2021, 2022],ticktext = ['2019', '2020', '2021', '2022']))
 
         st.markdown("**Comptage horaire moyen par année**")
