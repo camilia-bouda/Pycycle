@@ -218,7 +218,7 @@ with header:
         if st.session_state.selected_bike_meter != "[]":  #If a bike meter has been selected, we show the graph of the hourly trafic
             id_compteur = json.loads(st.session_state.selected_bike_meter)[0][0]['pointIndex']
             
-            df_tranche_horaire = pd.DataFrame({"Tranche horaire":["Tranche 0","Tranche 1","Tranche 2","Tranche 3","Tranche 4","Tranche 5"],"Heures":["21h - 1h","5h - 8h","5h - 8h","9h - 12h","13h - 16h","17h - 20h"]}).set_index("Tranche horaire")
+            df_tranche_horaire = pd.DataFrame({"Tranche horaire":["Tranche 0","Tranche 1","Tranche 2","Tranche 3","Tranche 4","Tranche 5"],"Heures":["21h - 00h","1h - 4h","5h - 8h","9h - 12h","13h - 16h","17h - 20h"]}).set_index("Tranche horaire")
             st.table(df_tranche_horaire.T)
             
             df_fig_train = RF_pred_train[RF_pred_train["id compteur"] == id_compteur]
