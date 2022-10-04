@@ -48,27 +48,17 @@ with header:
             et présente des données de comptages horaires du trafic cycliste\
             sur 13 mois glissants. La structure des données est la suivante :")
             
-    df_format_data = pd.DataFrame({"Champs":["Identifiant du compteur",
-                                   "Nom du compteur : données complètes comportant l’adresse postale et le sens de comptage",
-                                   "Identifiant du site de comptage",
-                                   "Nom du site de comptage",
-                                   "Comptage horaire : le volume de cycliste en une heure --→ variable cible",
-                                   "Date et heure de comptage : données complètes comporte la date et l’heure du comptage horaire",
-                                   "Date d'installation du site de comptage",
-                                   "Lien vers photo du site de comptage",
-                                   "Coordonnées géographiques : coordonnées au format GPS du compteur",
-                                   "Identifiant technique compteur"],
-                                   "Exemple":["100003096-353242251",
-                                        "97 avenue Denfert Rochereau SO-NE", 
-                                        "100003096",
-                                        "97 avenue Denfert Rochereau",
-                                        "8",
-                                        "2022-02-18T01:00:00+01:00",
-                                        "https://filer.eco-counter-tools.com/file/51/8c9a267316dba09ef0d3f3a3291f96b5236120d92040a9e8687dd5f9609b1251/X2H20012081_20210810112520.jpg",
-                                        "48.83511,2.33338",
-                                        "X2H20012081",
-                                        "2012-02-22",
-                                        ""]})
+    dict = {
+    "Champs" : ["Identifiant du compteur", "Nom du compteur : données complètes comportant l’adresse postale et le sens de comptage",\
+        "Identifiant du site de comptage", "Nom du site de comptage", "Comptage horaire : le volume de cycliste en une heure --→ variable cible",\
+        "Date et heure de comptage : données complètes comporte la date et l’heure du comptage horaire", "Date d'installation du site de comptage",\
+        "Lien vers photo du site de comptage", "Coordonnées géographiques : coordonnées au format GPS du compteur", "Identifiant technique compteur"],
+    "Exemple" : ["100003096-353242251", "97 avenue Denfert Rochereau SO-NE", "100003096", "97 avenue Denfert Rochereau","8", "2022-02-18T01:00:00+01:00",\
+        "2012-02-22", "https://filer.eco-counter-tools.com/file/51/8c9a267316dba09ef0d3f3a3291f96b5236120d92040a9e8687dd5f9609b1251/X2H20012081_20210810112520.jpg",\
+        "48.83511,2.33338", "X2H20012081"]
+}
+
+    df_format_data = pd.DataFrame(dict)
     st.table(df_format_data)
             
     st.write("Nous avons également récupéré les données des années précédentes\
