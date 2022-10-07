@@ -8,7 +8,7 @@ import json
 
 
 
-st.set_page_config(page_title = "Pycycle", layout="wide", initial_sidebar_state="collapsed", page_icon = ":bicyclist:")
+st.set_page_config(page_title = "Pycycle - Prédiction", layout="wide", initial_sidebar_state="collapsed", page_icon = ":bicyclist:")
 
 header = st.container()
 carte = st.container()

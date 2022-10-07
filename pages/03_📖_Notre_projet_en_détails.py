@@ -5,7 +5,7 @@ import plotly.express as px
 from streamlit_plotly_mapbox_events import plotly_mapbox_events
 from PIL import Image
 
-st.set_page_config(page_title = "Pycycle", layout="wide", initial_sidebar_state="collapsed", page_icon = ":bicyclist:")
+st.set_page_config(page_title = "Pycycle - Détails du projet", layout="wide", initial_sidebar_state="collapsed", page_icon = ":bicyclist:")
 
 header = st.container()
 
