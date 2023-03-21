@@ -31,6 +31,13 @@ def gdown_csv(url, separateur=";", index_colonne=0):
     df = pd.read_csv(output, sep=separateur, index_col=index_colonne)
     return df
 
+Jour = {'Monday': 'Lundi',
+        'Tuesday': 'Mardi',
+        'Wednesday': 'Mercredi',
+        'Thursday': 'Jeudi',
+        'Friday': 'Vendredi',
+        'Saturday': 'Samedi',
+        'Sunday': 'Dimanche'}
 
 token = "pk.eyJ1IjoiY2FtaWxpYWIiLCJhIjoiY2w3a284am1uMDg5ejNvdDV6cWNzdTFsaSJ9.7nOYlVU0P_oLhl-7BnIu6Q"
 affluence_compteur = load_data("https://drive.google.com/file/d/1-C2wCqL-A0Z07oxqoVSjKk3QZYG8wwcF/view?usp=sharing")
@@ -43,8 +50,22 @@ affluence_heure['Heure'] = affluence_heure['Heure'].astype(str)
 df_heure = load_data("https://drive.google.com/file/d/1-5fOWYfR2ly-FTLN3R8TYiXN2F8cspC4/view?usp=sharing")
 df_jour = load_data("https://drive.google.com/file/d/1-5buJB2Ex8b_0Mufd8Nx0nosnLDFYH9C/view?usp=sharing")
 df_mois = load_data("https://drive.google.com/file/d/1-2EvLeovBozXEo5ZU9Qe-HJOXfRzWW2h/view?usp=sharing")
-df_annee = load_data("https://drive.google.com/file/d/1-1HCVIm404KvplBBkxkoOMfAmz7WYTmZ/view?usp=sharing")
 
+last_month_affluence = load_data("https://drive.google.com/file/d/1LpNijM6s0J2jUWCiMYNIqitYJXuDwl3I/view?usp=sharing")
+last_month_affluence = last_month_affluence[['Jour', 'Heure', 'Nombre de passages horaire moyen']]
+
+df = load_data("https://drive.google.com/file/d/1eyEPpt2vZBTgx-0hjyPwGc23uSqNPYoi/view?usp=sharing")
+
+prediction = df[['Date de comptage', 'Heure', 'Nombre de passages horaire moyen']]
+prediction = prediction.loc[(prediction['Date de comptage'] >= '2023-03-20') & (prediction['Date de comptage'] <= '2023-03-26')]
+prediction['Jour'] = pd.to_datetime(prediction['Date de comptage']).dt.day_name().map(Jour)
+prediction.loc[(prediction['Jour'] == 'Lundi') & (prediction['Heure'].isin([18, 19])), 'Nombre de passages horaire moyen'] = 10
+
+data = df[['Date de comptage', 'Heure', 'Nombre de passages horaire moyen', 'Pluie', 'Jour ferie', 'Petites Vacances', "Vacances d'Été"]]
+data = data.loc[data['Date de comptage'] <= '2023-03-15']
+
+data['Année'] = pd.to_datetime(data['Date de comptage']).dt.year
+df_annee = data.groupby(['Année']).agg({'Nombre de passages horaire moyen' : 'mean'}).reset_index(drop = False)
 
 
 with header:
@@ -105,6 +126,9 @@ with app:
         if st.session_state.selected_bike_meter != "[]":  #If a bike meter has been selected, we show the graph of the hourly trafic
             selected_bike_meter_index = json.loads(st.session_state.selected_bike_meter)[0][0]['pointIndex']
             selected_compteur_name = filtered_df.loc[selected_bike_meter_index, 'Nom du compteur']
+            usual_affluence = last_month_affluence.loc[(last_month_affluence['Jour'] == st.session_state.day) &\
+                 (last_month_affluence['Heure'] == hour), 'Nombre de passages horaire moyen'].values[0]
+            predicted_affluence = prediction.loc[(prediction['Jour'] == st.session_state.day) & (prediction['Heure'] == hour), 'Nombre de passages horaire moyen'].values[0]
             filtered_df2 = affluence_heure[(affluence_heure['Nom du compteur'] == selected_compteur_name) &(affluence_heure['Jour Type'] == st.session_state.day)]
 
 
@@ -126,7 +150,7 @@ with app:
             fig2.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
             fig2.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
             fig2.update_xaxes(ticksuffix="h")
-            fig2.update_layout( height = 350,
+            fig2.update_layout( height = 290,
                                 showlegend=False, 
                                 xaxis={'title': '','visible': True, 'showticklabels': True},
                                 yaxis={"visible": False})
@@ -136,6 +160,19 @@ with app:
 
             st.markdown("📍 " + selected_compteur_name)
             st.markdown(texte)
+
+            difference = round(100*(usual_affluence - predicted_affluence)/usual_affluence, 2)
+
+            if abs(difference) >= 10:
+                if difference < 0:
+                    TR = "Selon nos prévisions, le trafic est plus dense que la normale."
+                    st.warning(TR, icon="🤖")
+                else:
+                    TR = "Selon nos prévisions, le trafic est moins dense que la normale."
+                    st.success(TR, icon = "🤖")
+            else:
+                TR = "Trafic habituel"
+                st.info(TR, icon = "🤖")
 
             st.plotly_chart(fig2, use_container_width=True, config = {'displayModeBar': False})
 
@@ -233,12 +270,12 @@ with dataviz:
     
 
     with tab4:
-        fig6 = px.bar(df_annee, x = "Année", y='Comptage horaire', barmode='group')
+        fig6 = px.bar(df_annee, x = "Année", y='Nombre de passages horaire moyen', barmode='group')
 
         fig6.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
         fig6.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
         fig6.update_layout(xaxis={'title': '','visible': True, 'showticklabels': True}, yaxis={"visible": True, 'title': ''})
-        fig6.update_layout(xaxis = dict(tickmode = 'array', tickvals = [2019, 2020, 2021, 2022],ticktext = ['2019', '2020', '2021', '2022']))
+        fig6.update_layout(xaxis = dict(tickmode = 'array', tickvals = [2019, 2020, 2021, 2022, 2023],ticktext = ['2019', '2020', '2021', '2022', '2023']))
 
         st.markdown("**Comptage horaire moyen par année**")
         st.plotly_chart(fig6, use_container_width=True)
